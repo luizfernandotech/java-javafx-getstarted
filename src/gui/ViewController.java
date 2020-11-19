@@ -2,14 +2,17 @@ package gui;
 
 import gui.util.Alerts;
 import gui.util.Constraints;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import javafx.util.Callback;
+import model.entities.Person;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ViewController implements Initializable {
@@ -27,6 +30,14 @@ public class ViewController implements Initializable {
     private Button btSum;
 
     @FXML
+    private ComboBox<Person> comboBoxPerson;
+
+    @FXML
+    private Button btAll;
+
+    private ObservableList<Person> observableList;
+
+    @FXML
     public void onBtSumAction() {
 
         try {
@@ -40,11 +51,42 @@ public class ViewController implements Initializable {
 
     }
 
+    @FXML
+    public void onComboBoxPersonAction() {
+        Person person = comboBoxPerson.getSelectionModel().getSelectedItem();
+        System.out.println(person);
+    }
+
+    @FXML
+    public void onBtAllAction() {
+        for (Person person : comboBoxPerson.getItems()) {
+            System.out.println(person);
+        }
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         Constraints.setTextFieldDouble(txtNumber1);
         Constraints.setTextFieldDouble(txtNumber2);
         Constraints.setTextFieldMaxLength(txtNumber1, 12);
         Constraints.setTextFieldMaxLength(txtNumber2, 12);
+
+        List<Person> list = new ArrayList<>();
+        list.add(new Person(1, "Luiz", "luiz@email.com"));
+        list.add(new Person(2, "Maria", "maria@email.com"));
+        list.add(new Person(3, "Ana", "ana@email.com"));
+
+        observableList = FXCollections.observableArrayList(list);
+        comboBoxPerson.setItems(observableList);
+
+        Callback<ListView<Person>, ListCell<Person>> factory = personListView -> new ListCell<Person>() {
+            @Override
+            protected void updateItem(Person person, boolean empty) {
+                super.updateItem(person, empty);
+                setText(empty ? "" : person.getName());
+            }
+        };
+        comboBoxPerson.setCellFactory(factory);
+        comboBoxPerson.setButtonCell(factory.call(null));
     }
 }
